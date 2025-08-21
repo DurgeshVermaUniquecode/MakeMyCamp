@@ -63,10 +63,9 @@
                 <a href="{{url('/')}}" class="app-brand-link">
                   <span class="app-brand-logo demo">
                     <span class="text-primary">
-                      <img src="{{asset('images/'.config('app.logo'))}}" width="60">
+                      <img src="{{asset('images/'.config('app.auth_logo'))}}" width="300">
                     </span>
                   </span>
-                  <span class="app-brand-text demo fw-bold text-primary">{{ config('app.name') }}</span>
                 </a>
               </div>
               @yield('content')
