@@ -9,10 +9,35 @@
                     <h5 class="mb-0">Edit ({{ $user->name }})</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('edit_user', [$type,$user->id]) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('edit_user', [$type, $user->id]) }}" method="POST" enctype="multipart/form-data">
 
                         @csrf
                         <div class="row">
+
+                            <input type="hidden" name="type" value="{{ $type }}">
+                            @if ($type == '3')
+                                <div class="col-sm-3">
+                                    <div class="mb-6">
+                                        <label for="parent_id" class="form-label">Parent<span
+                                                class="text-danger">*</span></label>
+                                        <select class="selectpicker w-100" data-style="btn-default" id="parent_id"
+                                            name="parent_id" aria-label="Select Parent" required>
+<option value="">Select Employee</option>
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}" @selected(old('parent_id',$user->parent_id) == $vendor->id)>
+                                                    {{ $vendor->name }}</option>
+                                            @endforeach
+
+                                        </select>
+                                    </div>
+                                    @error('parent_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            @endif
+
+
+
                             <div class="col-sm-3">
                                 <div class="mb-6">
                                     <label class="form-label" for="fullname">Full Name <span
@@ -22,7 +47,7 @@
                                                 class="icon-base ti tabler-user"></i></span>
                                         <input type="text" class="form-control" id="fullname" name="fullname"
                                             placeholder="John Doe" aria-label="John Doe" required
-                                            value="{{ old('fullname',$user->name) }}" aria-describedby="fullname2" />
+                                            value="{{ old('fullname', $user->name) }}" aria-describedby="fullname2" />
                                     </div>
                                     @error('fullname')
                                         <span class="text-danger">{{ $message }}</span>
@@ -32,13 +57,12 @@
 
                             <div class="col-sm-3">
                                 <div class="mb-6">
-                                    <label class="form-label" for="email">Email<span
-                                            class="text-danger">*</span></label>
+                                    <label class="form-label" for="email">Email<span class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="icon-base ti tabler-mail"></i></span>
                                         <input type="text" id="email" name="email" class="form-control"
                                             placeholder="john.doe@gmail.com" aria-label="john.doe@gmail.com"
-                                            aria-describedby="email2" required value="{{ old('email',$user->email) }}" />
+                                            aria-describedby="email2" required value="{{ old('email', $user->email) }}" />
                                     </div>
                                     @error('email')
                                         <span class="text-danger">{{ $message }}</span>
@@ -53,10 +77,9 @@
                                     <div class="input-group input-group-merge">
                                         <span id="phone2" class="input-group-text"><i
                                                 class="icon-base ti tabler-phone"></i></span>
-                                        <input type="text" id="phone" name="phone"
-                                            class="form-control phone-mask" placeholder="9865474584"
-                                            aria-label="9865474584" aria-describedby="phone2" required
-                                            value="{{ old('phone',$user->phone_number) }}" />
+                                        <input type="text" id="phone" name="phone" class="form-control phone-mask"
+                                            placeholder="9865474584" aria-label="9865474584" aria-describedby="phone2"
+                                            required value="{{ old('phone', $user->phone_number) }}" />
                                     </div>
                                     @error('phone')
                                         <span class="text-danger">{{ $message }}</span>
@@ -71,7 +94,7 @@
                                         <span id="father_name2" class="input-group-text"><i
                                                 class="icon-base ti tabler-user"></i></span>
                                         <input type="text" class="form-control" id="father_name" name="father_name"
-                                            value="{{ old('father_name',$user->father_name) }}" placeholder="John Doe"
+                                            value="{{ old('father_name', $user->father_name) }}" placeholder="John Doe"
                                             aria-label="John Doe" aria-describedby="father_name2" />
                                     </div>
                                     @error('father_name')
@@ -88,7 +111,8 @@
                                                 class="icon-base ti tabler-user"></i></span>
                                         <input type="text" class="form-control" id="mother_name" name="mother_name"
                                             placeholder="John Doe" aria-label="John Doe"
-                                            value="{{ old('mother_name',$user->mother_name) }}" aria-describedby="mother_name2" />
+                                            value="{{ old('mother_name', $user->mother_name) }}"
+                                            aria-describedby="mother_name2" />
                                     </div>
                                     @error('mother_name')
                                         <span class="text-danger">{{ $message }}</span>
@@ -96,7 +120,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-3">
+                            {{-- <div class="col-sm-3">
                                 <div class="mb-6">
                                     <label class="form-label" for="password">Password<span
                                             class="text-danger">*</span></label>
@@ -111,7 +135,7 @@
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
 
 
 
@@ -122,7 +146,7 @@
                                     <div class="input-group input-group-merge">
                                         <span id="dob2" class="input-group-text"><i
                                                 class="icon-base ti tabler-calendar"></i></span>
-                                        <input class="form-control" type="date" value="{{ old('dob',$user->dob) }}"
+                                        <input class="form-control" type="date" value="{{ old('dob', $user->dob) }}"
                                             id="flatpickr-date" name="dob" required />
                                     </div>
                                     @error('dob')
@@ -135,11 +159,11 @@
                                 <div class="mb-6">
                                     <label for="gender" class="form-label">Gender<span
                                             class="text-danger">*</span></label>
-                                    <select class="form-select" id="gender" name="gender"
-                                        aria-label="Select Gender" required>
-                                        <option value="Male" @selected(old('gender',$user->gender) == 'Male')>Male</option>
-                                        <option value="Female" @selected(old('gender',$user->gender) == 'Female')>Female</option>
-                                        <option value="Other" @selected(old('gender',$user->gender) == 'Other')>Other</option>
+                                    <select class="form-select" id="gender" name="gender" aria-label="Select Gender"
+                                        required>
+                                        <option value="Male" @selected(old('gender', $user->gender) == 'Male')>Male</option>
+                                        <option value="Female" @selected(old('gender', $user->gender) == 'Female')>Female</option>
+                                        <option value="Other" @selected(old('gender', $user->gender) == 'Other')>Other</option>
                                     </select>
                                 </div>
                                 @error('gender')
@@ -151,8 +175,8 @@
                             <div class="col-sm-3">
                                 <div class="mb-6">
                                     <label for="profile_image" class="form-label">Profile Image</label>
-                                    <input class="form-control" type="file" id="profile_image"
-                                        name="profile_image" accept="image/*" />
+                                    <input class="form-control" type="file" id="profile_image" name="profile_image"
+                                        accept="image/*" />
                                 </div>
                                 @error('profile_image')
                                     <span class="text-danger">{{ $message }}</span>
@@ -173,7 +197,7 @@
                                         onchange="getStates(this.value)" aria-label="Select Country" required>
                                         <option value="" selected>Select Country</option>
                                         @foreach ($countries as $country)
-                                            <option value="{{ $country->id }}" @selected(old('country',$user->address->country_id) == $country->id)>
+                                            <option value="{{ $country->id }}" @selected(old('country', $user->address->country_id) == $country->id)>
                                                 {{ $country->name }}</option>
                                         @endforeach
                                     </select>
@@ -202,8 +226,8 @@
                                 <div class="mb-6">
                                     <label for="city" class="form-label">City<span
                                             class="text-danger">*</span></label>
-                                    <select class="form-select" id="city" name="city"
-                                        aria-label="Select City" required>
+                                    <select class="form-select" id="city" name="city" aria-label="Select City"
+                                        required>
                                         <option value="">Select City</option>
                                     </select>
                                 </div>
@@ -221,7 +245,8 @@
                                                 class="icon-base ti tabler-location"></i></span>
                                         <input type="text" id="zipcode" name="zipcode"
                                             class="form-control phone-mask" placeholder="123456" aria-label="123456"
-                                            aria-describedby="zipcode2" required value="{{ old('zipcode',$user->address->zip) }}" />
+                                            aria-describedby="zipcode2" required
+                                            value="{{ old('zipcode', $user->address->zip) }}" />
                                     </div>
                                     @error('zipcode')
                                         <span class="text-danger">{{ $message }}</span>
@@ -235,7 +260,7 @@
                                             class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <textarea id="address" name="address" class="form-control" placeholder="Address" aria-label="Address"
-                                            aria-describedby="address2">{{ old('address',$user->address->address) }}</textarea>
+                                            aria-describedby="address2">{{ old('address', $user->address->address) }}</textarea>
                                     </div>
                                     @error('address')
                                         <span class="text-danger">{{ $message }}</span>
@@ -253,11 +278,11 @@
                                 <div class="mb-6">
                                     <label for="bank" class="form-label">Bank<span
                                             class="text-danger">*</span></label>
-                                    <select class="form-select" id="bank" name="bank"
-                                        aria-label="Select Bank" required>
+                                    <select class="form-select" id="bank" name="bank" aria-label="Select Bank"
+                                        required>
                                         <option value="" selected>Select Bank</option>
                                         @foreach ($banks as $bank)
-                                            <option value="{{ $bank->id }}" @selected(old('bank',$user->bank->bank_id) == $bank->id)>
+                                            <option value="{{ $bank->id }}" @selected(old('bank', $user->bank->bank_id) == $bank->id)>
                                                 {{ $bank->name }}</option>
                                         @endforeach
                                     </select>
@@ -276,7 +301,7 @@
                                                 class="icon-base ti tabler-user"></i></span>
                                         <input type="text" id="name_at_bank" name="name_at_bank" class="form-control"
                                             placeholder="John Doe" aria-label="John Doe" required
-                                            value="{{ old('name_at_bank',$user->bank->user_name_at_bank) }}" />
+                                            value="{{ old('name_at_bank', $user->bank->user_name_at_bank) }}" />
                                     </div>
                                     @error('name_at_bank')
                                         <span class="text-danger">{{ $message }}</span>
@@ -294,7 +319,7 @@
                                         <input type="text" id="account_number" name="account_number"
                                             class="form-control phone-mask" placeholder="123456789"
                                             aria-label="123456789" aria-describedby="account_number2"
-                                            value="{{ old('account_number',$user->bank->account_number) }}" required />
+                                            value="{{ old('account_number', $user->bank->account_number) }}" required />
                                     </div>
                                     @error('account_number')
                                         <span class="text-danger">{{ $message }}</span>
@@ -311,7 +336,8 @@
                                                 class="icon-base ti tabler-wallet"></i></span>
                                         <input type="text" id="ifsc" name="ifsc"
                                             class="form-control phone-mask" placeholder="123456" aria-label="123456"
-                                            aria-describedby="ifsc2" required value="{{ old('ifsc',$user->bank->ifscode) }}" />
+                                            aria-describedby="ifsc2" required
+                                            value="{{ old('ifsc', $user->bank->ifscode) }}" />
 
                                     </div>
                                     @error('ifsc')
@@ -331,24 +357,24 @@
                                     <select class="form-select" id="proof_type" name="proof_type"
                                         aria-label="Select Proof Type" required>
                                         <option value="" selected>Select Proof Type</option>
-                                        <option value="Adhaar Card" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Adhaar Card')>Adhaar Card</option>
-                                        <option value="Permanent Account Number (PAN)" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Permanent Account Number (PAN)')>
+                                        <option value="Adhaar Card" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Adhaar Card')>Adhaar Card</option>
+                                        <option value="Permanent Account Number (PAN)" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Permanent Account Number (PAN)')>
                                             Permanent Account Number (PAN)</option>
-                                        <option value="Election Commission Id Card" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Election Commission Id Card')>
+                                        <option value="Election Commission Id Card" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Election Commission Id Card')>
                                             Election Commission Id Card</option>
-                                        <option value="Driver's License" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Driver\'s License')>Driver's License
+                                        <option value="Driver's License" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Driver\'s License')>Driver's License
                                         </option>
-                                        <option value="Birth Certificate" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Birth Certificate')>Birth
+                                        <option value="Birth Certificate" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Birth Certificate')>Birth
                                             Certificate</option>
-                                        <option value="State-issued Identification Card" @selected(old('proof_type',$user->kyc->id_proof_type) == 'State-issued Identification Card')>
+                                        <option value="State-issued Identification Card" @selected(old('proof_type', $user->kyc->id_proof_type) == 'State-issued Identification Card')>
                                             State-issued Identification Card</option>
-                                        <option value="Student Identification Card" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Student Identification Card')>
+                                        <option value="Student Identification Card" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Student Identification Card')>
                                             Student Identification Card</option>
-                                        <option value="Social Security Card" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Social Security Card')>Social
+                                        <option value="Social Security Card" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Social Security Card')>Social
                                             Security Card</option>
-                                        <option value="Military Identification Card" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Military Identification Card')>
+                                        <option value="Military Identification Card" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Military Identification Card')>
                                             Military Identification Card</option>
-                                        <option value="Passport Card" @selected(old('proof_type',$user->kyc->id_proof_type) == 'Passport Card')>Passport Card
+                                        <option value="Passport Card" @selected(old('proof_type', $user->kyc->id_proof_type) == 'Passport Card')>Passport Card
                                         </option>
 
                                     </select>
@@ -362,15 +388,14 @@
                             <div class="col-sm-4">
                                 <div class="mb-6">
                                     <label class="form-label" for="identification_number">Identification
-                                        Number<span
-                                            class="text-danger">*</span></label>
+                                        Number<span class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <span id="identification_number2" class="input-group-text"><i
                                                 class="icon-base ti tabler-wallet"></i></span>
                                         <input type="text" id="identification_number" name="identification_number"
                                             class="form-control phone-mask" placeholder="123456" aria-label="123456"
                                             aria-describedby="identification_number2" required
-                                            value="{{ old('identification_number',$user->kyc->id_proof_no) }}" />
+                                            value="{{ old('identification_number', $user->kyc->id_proof_no) }}" />
 
                                     </div>
                                     @error('identification_number')
@@ -379,11 +404,11 @@
                                 </div>
                             </div>
 
-                                <div class="col-sm-4">
+                            <div class="col-sm-4">
                                 <div class="mb-6">
                                     <label for="identification_image" class="form-label">Identification Image</label>
                                     <input class="form-control" type="file" id="identification_image"
-                                        name="identification_image" accept="image/*"/>
+                                        name="identification_image" accept="image/*" />
                                 </div>
                                 @error('identification_image')
                                     <span class="text-danger">{{ $message }}</span>
@@ -403,21 +428,19 @@
 
 @endsection
 @push('scripts')
-    @if($errors->any())
-    <script>
-        $(document).ready(function(){
-            getStates('{{old("country")}}','{{old("state")}}')
-            getCities('{{old("state")}}','{{old("city")}}')
-        });
-    </script>
+    @if ($errors->any())
+        <script>
+            $(document).ready(function() {
+                getStates('{{ old('country') }}', '{{ old('state') }}')
+                getCities('{{ old('state') }}', '{{ old('city') }}')
+            });
+        </script>
     @endif
 
     <script>
-        $(document).ready(function(){
-            getStates('{{$user->address->country_id}}','{{$user->address->state_id}}')
-            getCities('{{$user->address->city_id}}','{{$user->address->city_id}}')
+        $(document).ready(function() {
+            getStates('{{ $user->address->country_id }}', '{{ $user->address->state_id }}')
+            getCities('{{ $user->address->city_id }}', '{{ $user->address->city_id }}')
         });
     </script>
 @endpush
-
-

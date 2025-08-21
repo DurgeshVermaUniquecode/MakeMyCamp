@@ -18,7 +18,7 @@ return [
     'roles' =>  [
             'user' => 4,
             'employee' => 3,
-            'bank-associate' => 5,
+            'vendor' => 5,
             'sub-admin' => 2,
     ],
 
