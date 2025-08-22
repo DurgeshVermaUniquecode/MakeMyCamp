@@ -483,6 +483,7 @@ class UserController extends Controller
     {
         $countries = Countrie::where('status', 'Active')->get();
         $banks = Bank::where('status', 'Active')->get();
+        $vendors = User::with(['roles'])->whereIn('role', [5,1])->get(['id','name']);
 
         if ($request->method() == 'POST') {
 
@@ -512,6 +513,7 @@ class UserController extends Controller
                 'proof_type'       => 'required',
                 'identification_number'       => 'required',
                 'identification_image'       => 'required|image|mimes:jpg,jpeg,png|max:2048',
+                'parent_id' =>'nullable|required_if:type,employee'
 
             ], [
                 'fullname.required' => 'Full name is required.',
@@ -561,7 +563,9 @@ class UserController extends Controller
                 'identification_image.required' => 'Identification image is required.',
                 'identification_image.image' => 'The file must be an image.',
                 'identification_image.mimes' => 'Image must be in jpg, jpeg, or png format.',
-                'identification_image.max' => 'Image size must not exceed 2MB.'
+                'identification_image.max' => 'Image size must not exceed 2MB.',
+
+                'parent_id.required_if' => 'Parent is Required'
 
             ]);
 
@@ -594,7 +598,7 @@ class UserController extends Controller
 
                 DB::beginTransaction();
 
-                $user = User::create([
+                $userData = [
                     'code' => config('app.shortname') . rand(0000000, 9999999),
                     'name' => $request->fullname,
                     'email' => $request->email,
@@ -608,7 +612,13 @@ class UserController extends Controller
                     'password' => Hash::make($request->password),
                     'image' => $profile_image,
                     'dob' => $request->dob
-                ]);
+                ];
+
+                if($type == 'employee'){
+                    $userData['parent_id'] = $request->parent_id;
+                }
+
+                $user = User::create($userData);
 
                 Wallet::create([
                     'user_id' => $user->id
@@ -657,7 +667,7 @@ class UserController extends Controller
             }
         }
 
-        return view('users_list.add', compact('type', 'countries', 'banks'));
+        return view('users_list.add', compact('type', 'countries', 'banks','vendors'));
     }
 
     public function editUser($type, $id, Request $request)
@@ -665,8 +675,10 @@ class UserController extends Controller
         $user = User::with(['address', 'kyc', 'bank'])->where('id', $id)->first();
         $countries = Countrie::where('status', 'Active')->get();
         $banks = Bank::where('status', 'Active')->get();
+        $vendors = User::with(['roles'])->whereIn('role', [5,1])->get(['id','name']);
 
         if ($request->method() == 'POST') {
+
 
             $request->validate([
                 'fullname'         => 'required|string|max:255',
@@ -694,6 +706,8 @@ class UserController extends Controller
                 'proof_type'       => 'required',
                 'identification_number'       => 'required',
                 'identification_image'       => 'nullable|mimes:jpg,jpeg,png|max:2048',
+                'parent_id' =>'nullable|required_if:type,3'
+
 
             ], [
                 'fullname.required' => 'Full name is required.',
@@ -743,8 +757,9 @@ class UserController extends Controller
                 'identification_image.required' => 'Identification image is required.',
                 'identification_image.image' => 'The file must be an image.',
                 'identification_image.mimes' => 'Image must be in jpg, jpeg, or png format.',
-                'identification_image.max' => 'Image size must not exceed 2MB.'
+                'identification_image.max' => 'Image size must not exceed 2MB.',
 
+                'parent_id.required_if' => 'Parent is Required'
             ]);
 
             $roleMap = config('app.roles');
@@ -783,23 +798,12 @@ class UserController extends Controller
                 $user->image = $profile_image;
                 $user->gender = $request->gender;
                 $user->dob = $request->dob;
+
+                if($type == 3){
+                    $user->parent_id = $request->parent_id;
+                }
+
                 $user->update();
-
-
-                // $user = User::where('id',$id)->update([
-                //     'name' => $request->fullname,
-                //     'phone_number' => $request->phone,
-                //     'password' => Hash::make($request->password),
-                //     'image' => $profile_image,
-                //     'dob' => $request->dob
-
-                // ]);
-
-                // dd($user);
-
-                // Wallet::create([
-                //     'user_id' => $user->id
-                // ]);
 
                 Kyc::where('user_id', $user->id)->update([
                     'id_proof_type' => $request->proof_type,
@@ -834,7 +838,7 @@ class UserController extends Controller
             }
         }
 
-        return view('users_list.edit', compact('user', 'countries', 'banks', 'type'));
+        return view('users_list.edit', compact('user', 'countries', 'banks', 'type','vendors'));
     }
 
     public function statusUser($id)

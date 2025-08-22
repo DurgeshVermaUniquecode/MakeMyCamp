@@ -13,6 +13,29 @@
 
                         @csrf
                         <div class="row">
+
+                            <input type="hidden" name="type" value="{{$type}}">
+                            @if ($type == 'employee')
+                                <div class="col-sm-3">
+                                    <div class="mb-6">
+                                        <label for="parent_id" class="form-label">Parent<span
+                                                class="text-danger">*</span></label>
+                                        <select class="selectpicker w-100" data-style="btn-default" id="parent_id"
+                                            name="parent_id" aria-label="Select Parent" required>
+
+                                            @foreach ($vendors as $vendor)
+                                                <option value="{{ $vendor->id }}" @selected(old('parent_id') == $vendor->id)>
+                                                    {{ $vendor->name }}</option>
+                                            @endforeach
+
+                                        </select>
+                                    </div>
+                                    @error('parent_id')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            @endif
+
                             <div class="col-sm-3">
                                 <div class="mb-6">
                                     <label class="form-label" for="fullname">Full Name <span
@@ -32,8 +55,7 @@
 
                             <div class="col-sm-3">
                                 <div class="mb-6">
-                                    <label class="form-label" for="email">Email<span
-                                            class="text-danger">*</span></label>
+                                    <label class="form-label" for="email">Email<span class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text"><i class="icon-base ti tabler-mail"></i></span>
                                         <input type="text" id="email" name="email" class="form-control"
@@ -53,10 +75,9 @@
                                     <div class="input-group input-group-merge">
                                         <span id="phone2" class="input-group-text"><i
                                                 class="icon-base ti tabler-phone"></i></span>
-                                        <input type="text" id="phone" name="phone"
-                                            class="form-control phone-mask" placeholder="9865474584"
-                                            aria-label="9865474584" aria-describedby="phone2" required
-                                            value="{{ old('phone') }}" />
+                                        <input type="text" id="phone" name="phone" class="form-control phone-mask"
+                                            placeholder="9865474584" aria-label="9865474584" aria-describedby="phone2"
+                                            required value="{{ old('phone') }}" />
                                     </div>
                                     @error('phone')
                                         <span class="text-danger">{{ $message }}</span>
@@ -71,8 +92,8 @@
                                         <span id="father_name2" class="input-group-text"><i
                                                 class="icon-base ti tabler-user"></i></span>
                                         <input type="text" class="form-control" id="father_name" name="father_name"
-                                            value="{{ old('father_name') }}" placeholder="John Doe"
-                                            aria-label="John Doe" aria-describedby="father_name2" />
+                                            value="{{ old('father_name') }}" placeholder="John Doe" aria-label="John Doe"
+                                            aria-describedby="father_name2" />
                                     </div>
                                     @error('father_name')
                                         <span class="text-danger">{{ $message }}</span>
@@ -96,7 +117,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-3">
+                            {{-- <div class="col-sm-3">
                                 <div class="mb-6">
                                     <label class="form-label" for="password">Password<span
                                             class="text-danger">*</span></label>
@@ -111,7 +132,9 @@
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
-                            </div>
+                            </div> --}}
+
+                            <input type="hidden" name="password" id="password" value="123456">
 
 
 
@@ -133,9 +156,10 @@
 
                             <div class="col-sm-3">
                                 <div class="mb-6">
-                                    <label for="gender" class="form-label">Gender<span class="text-danger">*</span></label>
-                                    <select class="selectpicker w-100" data-style="btn-default" id="gender" name="gender"
-                                        aria-label="Select Gender" required>
+                                    <label for="gender" class="form-label">Gender<span
+                                            class="text-danger">*</span></label>
+                                    <select class="selectpicker w-100" data-style="btn-default" id="gender"
+                                        name="gender" aria-label="Select Gender" required>
                                         <option value="Male" @selected(old('gender') == 'Male')>Male</option>
                                         <option value="Female" @selected(old('gender') == 'Female')>Female</option>
                                         <option value="Other" @selected(old('gender') == 'Other')>Other</option>
@@ -150,8 +174,8 @@
                             <div class="col-sm-3">
                                 <div class="mb-6">
                                     <label for="profile_image" class="form-label">Profile Image</label>
-                                    <input class="form-control" type="file" id="profile_image"
-                                        name="profile_image" accept="image/*" />
+                                    <input class="form-control" type="file" id="profile_image" name="profile_image"
+                                        accept="image/*" />
                                 </div>
                                 @error('profile_image')
                                     <span class="text-danger">{{ $message }}</span>
@@ -166,7 +190,8 @@
 
                             <div class="col-sm-3">
                                 <div class="mb-6">
-                                    <label for="country" class="form-label">Country<span class="text-danger">*</span></label>
+                                    <label for="country" class="form-label">Country<span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select select2" id="country" name="country"
                                         onchange="getStates(this.value)" aria-label="Select Country" required>
                                         <option value="" selected>Select Country</option>
@@ -183,7 +208,8 @@
 
                             <div class="col-sm-3">
                                 <div class="mb-6">
-                                    <label for="state" class="form-label">State<span class="text-danger">*</span></label>
+                                    <label for="state" class="form-label">State<span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select select2" id="state" name="state" required
                                         onchange="getCities(this.value)" aria-label="Select State">
                                         <option value="">Select State</option>
@@ -197,7 +223,8 @@
 
                             <div class="col-sm-3">
                                 <div class="mb-6">
-                                    <label for="city" class="form-label">City<span class="text-danger">*</span></label>
+                                    <label for="city" class="form-label">City<span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select select2" id="city" name="city"
                                         aria-label="Select City" required>
                                         <option value="">Select City</option>
@@ -358,8 +385,7 @@
                             <div class="col-sm-4">
                                 <div class="mb-6">
                                     <label class="form-label" for="identification_number">Identification
-                                        Number<span
-                                            class="text-danger">*</span></label>
+                                        Number<span class="text-danger">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <span id="identification_number2" class="input-group-text"><i
                                                 class="icon-base ti tabler-wallet"></i></span>
@@ -375,12 +401,12 @@
                                 </div>
                             </div>
 
-                                <div class="col-sm-4">
+                            <div class="col-sm-4">
                                 <div class="mb-6">
                                     <label for="identification_image" class="form-label">Identification Image<span
                                             class="text-danger">*</span></label>
                                     <input class="form-control" type="file" id="identification_image"
-                                        name="identification_image" accept="image/*" required/>
+                                        name="identification_image" accept="image/*" required />
                                 </div>
                                 @error('identification_image')
                                     <span class="text-danger">{{ $message }}</span>
@@ -399,11 +425,11 @@
     </div>
 @endsection
 @push('scripts')
-    @if($errors->any())
+    @if ($errors->any())
         <script>
-            $(document).ready(function(){
-                getStates('{{old("country")}}','{{old("state")}}')
-                getCities('{{old("state")}}','{{old("city")}}')
+            $(document).ready(function() {
+                getStates('{{ old('country') }}', '{{ old('state') }}')
+                getCities('{{ old('state') }}', '{{ old('city') }}')
             });
         </script>
     @endif

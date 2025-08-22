@@ -425,10 +425,10 @@
                                             </li>
 
                                             <li class="menu-item">
-                                                <a href="{{ route('user_list', ['bank-associate']) }}"
+                                                <a href="{{ route('user_list', ['vendor']) }}"
                                                     class="menu-link">
                                                     <i class="menu-icon icon-base ti tabler-user-shield"></i>
-                                                    <div data-i18n="Bank Associate">Bank Associate</div>
+                                                    <div data-i18n="Vendor">Vendor</div>
                                                 </a>
                                             </li>
                                             <li class="menu-item">

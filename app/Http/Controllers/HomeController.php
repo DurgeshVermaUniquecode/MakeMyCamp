@@ -7,6 +7,7 @@ use App\Models\StaticContent;
 use App\Models\Video;
 use App\Models\Blog;
 use App\Models\ContactUs;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
 
@@ -29,6 +30,8 @@ class HomeController extends Controller
      */
     public function index()
     {
+
+
         $blogs = Blog::with('category')->where(function ($query) {
                                         $query->where('status', 'publish')->orWhere(function ($q) {
                                             $q->where('status', 'schedule')->where('publish_datetime', '<=', now());
@@ -37,7 +40,7 @@ class HomeController extends Controller
         return view('front.home',compact('blogs'));
     }
 
-    
+
     public function static_content()
     {
         $routeName = \Route::currentRouteName();
@@ -50,12 +53,12 @@ class HomeController extends Controller
         }
     }
 
-     
+
     public function videos()
     {
         $data = Video::where('status', 'Active')->latest()->get();
         return view('video-list',compact('data'));
-    } 
+    }
 
 
     public function blogs(Request $request)
@@ -75,9 +78,9 @@ class HomeController extends Controller
             return view('blog-items', compact('data'))->render();
         }
         return view('blog-list', compact('data'));
-    } 
+    }
 
-    
+
     public function blogDetails($slug)
     {
         $blog = Blog::with('category')
@@ -101,13 +104,13 @@ class HomeController extends Controller
                 ->paginate(6);
 
         return view('blog-details',compact('blog','data'));
-    } 
+    }
 
     public function contact_us()
     {
         return view('contact-us');
-    } 
-   
+    }
+
     public function contactSubmit(Request $request)
     {
         $request->validate([
