@@ -36,10 +36,6 @@
     <div class="card">
         <div class="card-header border-bottom d-flex justify-content-between">
             <h5 class="card-title mb-0">Leads</h5>
-
-            <a href="{{ route('add_lead') }}" class="btn add-new btn-primary"><span><span
-                        class="d-flex align-items-center gap-2"><i class="icon-base ti tabler-plus icon-xs"></i> <span
-                            class="d-none d-sm-inline-block">Add Lead</span></span></span></a>
         </div>
 
         <div class="card-datatable">
@@ -103,16 +99,16 @@
 
             const Columns = [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'user_name', name: 'user_name' },
-                { data: 'email', name: 'email' },
-                { data: 'phone', name: 'phone' },
+                { data: 'lead.user_name', name: 'lead.user_name' },
+                { data: 'lead.email', name: 'lead.email' },
+                { data: 'lead.phone', name: 'lead.phone' },
                 { data: 'status', name: 'status' },
                 { data: 'created_at', name: 'created_at' },
                 { data: 'updated_at', name: 'updated_at' },
                 { data: 'action', name: 'action', orderable: false, searchable: false },
             ];
 
-            const table1 = initializeDataTable('#data-table', '{{ route('lead_list') }}', Columns, function (d) {
+            const table1 = initializeDataTable('#data-table', '{{ route('vendor_lead_list') }}', Columns, function (d) {
                 d.status = $('#status').val();
             });
 
@@ -122,11 +118,5 @@
 
         });
 
-
-        function statusLead(id,status) {
-            $('#lead_id_status').val(id);
-            $('#status_modal').val(status).trigger('change');
-            $('#statusModal').modal('show');
-        }
     </script>
 @endpush

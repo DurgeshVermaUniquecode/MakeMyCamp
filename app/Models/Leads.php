@@ -14,7 +14,7 @@ class Leads extends Model
     public function user(){
         return $this->belongsTo(User::class,'assigned_to');
     }
-        
+
     public function getCreatedAtAttribute($value)
     {
         return \Carbon\Carbon::parse($value)->format('d-m-Y H:i A');

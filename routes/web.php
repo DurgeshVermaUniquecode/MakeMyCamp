@@ -113,9 +113,15 @@ Route::middleware(['roleAuth:Admin'])->group(function () {
         Route::match(['get', 'post'], 'list', [CRMController::class, 'leadsList'])->name('lead_list');
         Route::match(['get', 'post'], 'add', [CRMController::class, 'addLeads'])->name('add_lead');
         Route::match(['get', 'post'], 'edit/{id}', [CRMController::class, 'editLeads'])->name('edit_lead');
-        Route::post('assign-employee', [CRMController::class, 'assignEmployeeLead'])->name('assign_employee_lead');
+        Route::match(['get','post'],'assign-lead-vendor/{lead_id?}', [CRMController::class, 'assignLeadVendor'])->name('assign_lead_vendor');
+        Route::get('remove-lead-vendor/{lead_id}/{user_id}', [CRMController::class, 'removeLeadVendor'])->name('remove_lead_vendor');
         Route::match(['get', 'post'], 'follow-up/{lead_id}', [CRMController::class, 'leadFollowUp'])->name('lead_follow_up');
         Route::post('status', [CRMController::class, 'statusLead'])->name('status_lead');
+    });
+
+
+    Route::prefix('vendor-leads')->group(function () {
+        Route::match(['get', 'post'], 'list', [CRMController::class, 'vendorLeadsList'])->name('vendor_lead_list');
     });
 
     Route::prefix('tasks')->group(function () {
