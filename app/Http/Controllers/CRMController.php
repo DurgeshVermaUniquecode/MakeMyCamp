@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FollowUp;
 use App\Models\Leads;
+use App\Models\VendorLeads;
 use App\Models\Tasks;
 use App\Models\User;
 use App\Models\Steps;
@@ -28,7 +29,7 @@ class CRMController extends Controller
 {
     public function leadsList(Request $request)
     {
-        $employees = User::where(['role' => 3, 'status' => 'Active'])->get(['id', 'name']);
+        $employees = User::where(['role' => 5, 'status' => 'Active'])->get(['id', 'name']);
 
         if ($request->ajax()) {
             $query = Leads::with('user');
@@ -53,25 +54,27 @@ class CRMController extends Controller
         <div class="dropdown-menu">';
 
                     // Show Follow Up for all users
-                    $actions .= '<a class="dropdown-item" href="' . route('lead_follow_up', [$row->id]) . '">
-        <i class="icon-base ti tabler-message me-1"></i> Follow UP</a>';
+        //             $actions .= '<a class="dropdown-item" href="' . route('lead_follow_up', [$row->id]) . '">
+        // <i class="icon-base ti tabler-message me-1"></i> Follow UP</a>';
 
-                    // Show Edit only to admin or who has created lead
-                    if ($user->id === $row->created_by || ($user->role === 1 || $user->role === 2)) {
-                        $actions .= '<a class="dropdown-item" href="' . route('edit_lead', [$row->id]) . '">
+                    if ($row->status != 'Converted' || $row->status != 'Closed') {
+                        // Show Edit only to admin or who has created lead
+                        if ($user->id === $row->created_by || ($user->role === 1 || $user->role === 2)) {
+                            $actions .= '<a class="dropdown-item" href="' . route('edit_lead', [$row->id]) . '">
             <i class="icon-base ti tabler-pencil me-1"></i> Edit</a>';
-                    }
+                        }
 
-                    // Assign Employee for admin only
-                    if ($user->role === 1 || $user->role === 2) {
-                        $actions .= '<a class="dropdown-item" href="javascript:void(0)" onclick="assignEmployee(' . $row->id . ',' . $row->assigned_to . ')">
-            <i class="icon-base ti tabler-user me-1"></i> Assign Employee</a>';
-                    }
+                        // Assign Employee for admin only
+                        if ($user->role === 1 || $user->role === 2) {
+                            $actions .= '<a class="dropdown-item" href="' . route('assign_lead_vendor', [$row->id]) . '">
+                            <i class="icon-base ti tabler-user me-1"></i> Assign Vendor</a>';
+                        }
 
-                    // Status change for admin and teamlead
-                    if ($user->id === $row->created_by || ($user->role === 1 || $user->role === 2)) {
-                        $actions .= '<a class="dropdown-item" href="javascript:void(0);" onclick="statusLead(' . $row->id . ',\'' . addslashes($row->status) . '\')">
-            <i class="icon-base ti tabler-progress-check me-1"></i> Change Status</a>';
+                        // Status change for admin and teamlead
+            //             if ($user->id === $row->created_by || ($user->role === 1 || $user->role === 2)) {
+            //                 $actions .= '<a class="dropdown-item" href="javascript:void(0);" onclick="statusLead(' . $row->id . ',\'' . addslashes($row->status) . '\')">
+            // <i class="icon-base ti tabler-progress-check me-1"></i> Change Status</a>';
+            //             }
                     }
 
                     $actions .= '</div></div>';
@@ -177,15 +180,64 @@ class CRMController extends Controller
         return view('CRM.leads.edit', compact('lead'));
     }
 
-    public function assignEmployeeLead(Request $request)
+    public function assignLeadVendor($lead_id, Request $request)
     {
 
-        $update = Leads::where('id', $request->lead_id)->update(['assigned_to' => $request->employee]);
+        $lead = Leads::where('id', $lead_id)->first();
+        $assigned_to = VendorLeads::with('user')->whereIn('user_id', explode(',', $lead->assigned_to))->get();
 
-        //add notification
-        Helper::newNotification($request->employee, 'Lead Assigned', 'New Lead Assigned');
 
-        return to_route('lead_list')->with(['status' => 'success', 'message' => 'Employee Assigned']);
+        if ($request->method() == 'POST') {
+            $searchParam = $request->code;
+            $user = User::where('code', $searchParam)->orWhere('phone_number', $searchParam)->where('role', 5)->first();
+
+            if (isset($user) && !empty($user)) {
+
+                $vendors = [];
+
+                if ($lead->assigned_to != null) {
+                    $vendors = explode(',', $lead->assigned_to);
+                }
+
+                if (in_array($user->id, $vendors)) {
+                    return back()->with(['status' => 'error', 'message' => 'Manager Already Assigned']);
+                }
+
+                array_push($vendors, $user->id);
+                $lead->assigned_to = implode(',', $vendors);
+                $lead->save();
+
+                VendorLeads::insert(['lead_id'=>$lead_id,'user_id'=>$user->id]);
+
+                return back()->with(['status' => 'success', 'message' => 'Manager Assigned to Lead']);
+            } else {
+                return back()->with(['status' => 'error', 'message' => 'Manager Not found']);
+            }
+        }
+
+        return view('CRM.leads.assign_lead', compact('assigned_to', 'lead_id'));
+    }
+
+    public function removeLeadVendor($lead_id, $user_id)
+    {
+        $lead = Leads::where('id', $lead_id)->first();
+
+        $vendors = [];
+
+        if ($lead->assigned_to != null) {
+
+            $vendors = explode(',', $lead->assigned_to);
+        }
+
+        $vendors = array_diff( $vendors, [$user_id] );
+
+        $lead->assigned_to = implode(',', $vendors);
+        $lead->save();
+
+        $remove = VendorLeads::where(['lead_id'=>$lead_id,'user_id'=>$user_id])->delete();
+
+        return back()->with(['status' => 'success', 'message' => 'Manager Removed from Lead']);
+
     }
 
     public function statusLead(Request $request)
@@ -309,6 +361,38 @@ class CRMController extends Controller
         return view('CRM.leads.follow_up', compact('messages', 'lead'));
     }
 
+    public function vendorLeadsList(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $query = VendorLeads::with('lead')->where('user_id', Auth::user()->id);
+
+            if ($request->has('status') && !empty($request->status)) {
+                $query->where('status',  $request->status);
+            }
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    return '<div class="dropdown">
+                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                              <i class="icon-base ti tabler-dots-vertical"></i>
+                            </button>
+                            <div class="dropdown-menu">
+
+                              <a class="dropdown-item" href="javascript:void(0);" onclick="statusTask(' . $row->id . ',\'' . addslashes($row->status) . '\')"
+                                ><i class="icon-base ti tabler-progress-check me-1"></i> Change Status</a
+                              >
+                            </div>
+                          </div>';
+                })
+                ->rawColumns(['action', 'status'])
+                ->make(true);
+        }
+
+        return view('CRM.vendor_leads.view');
+    }
+
 
     public function taskList(Request $request)
     {
@@ -347,6 +431,8 @@ class CRMController extends Controller
 
         return view('CRM.task.view');
     }
+
+
 
     public function addTasks(Request $request)
     {

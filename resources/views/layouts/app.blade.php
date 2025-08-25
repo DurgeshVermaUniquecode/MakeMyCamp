@@ -40,7 +40,7 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
 
     <!-- endbuild -->
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/bs-stepper/bs-stepper.css')}}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/bs-stepper/bs-stepper.css') }}" />
 
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/apex-charts/apex-charts.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/swiper/swiper.css') }}" />
@@ -250,8 +250,9 @@
 
                             @php
                                 use App\Models\Notifications;
-                                $notifications = Notifications::where(['user_id'=>Auth::user()->id])->whereNull('read_at')->get();
-
+                                $notifications = Notifications::where(['user_id' => Auth::user()->id])
+                                    ->whereNull('read_at')
+                                    ->get();
 
                             @endphp
                             <!-- Notification -->
@@ -261,10 +262,10 @@
                                     aria-expanded="false">
                                     <span class="position-relative">
                                         <i class="icon-base ti tabler-bell icon-22px text-heading"></i>
-                                        @if(count($notifications))
-                                        <span
-                                            class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
-                                            @endif
+                                        @if (count($notifications))
+                                            <span
+                                                class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+                                        @endif
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end p-0">
@@ -272,8 +273,9 @@
                                         <div class="dropdown-header d-flex align-items-center py-3">
                                             <h6 class="mb-0 me-auto">Notification</h6>
                                             <div class="d-flex align-items-center h6 mb-0">
-                                                <span class="badge bg-label-primary me-2">{{count($notifications)}} New</span>
-                                                <a href="{{route('read_notifications')}}"
+                                                <span class="badge bg-label-primary me-2">{{ count($notifications) }}
+                                                    New</span>
+                                                <a href="{{ route('read_notifications') }}"
                                                     class="dropdown-notifications-all p-2 btn btn-icon"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     title="Mark all as read"><i
@@ -284,18 +286,20 @@
                                     <li class="dropdown-notifications-list scrollable-container">
                                         <ul class="list-group list-group-flush">
                                             @foreach ($notifications as $notification)
-                                                 <li
-                                                class="list-group-item list-group-item-action dropdown-notifications-item">
-                                                <div class="d-flex">
+                                                <li
+                                                    class="list-group-item list-group-item-action dropdown-notifications-item">
+                                                    <div class="d-flex">
 
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="small mb-1">{{$notification->title}}</h6>
-                                                        <small class="mb-1 d-block text-body">{{$notification->message}}</small>
-                                                        <small class="text-body-secondary">{{$notification->created_at}}</small>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="small mb-1">{{ $notification->title }}</h6>
+                                                            <small
+                                                                class="mb-1 d-block text-body">{{ $notification->message }}</small>
+                                                            <small
+                                                                class="text-body-secondary">{{ $notification->created_at }}</small>
+                                                        </div>
+
                                                     </div>
-
-                                                </div>
-                                            </li>
+                                                </li>
                                             @endforeach
 
 
@@ -403,6 +407,16 @@
                                     </a>
                                 </li>
 
+                                @if (in_array(Auth::user()->role, [5]))
+                                    <li class="menu-item">
+                                        <a href="{{ route('vendor_lead_list') }}" class="menu-link">
+                                            <i class="menu-icon icon-base ti tabler-a-b-2"></i>
+                                            <div data-i18n="Leads">Leads</div>
+                                        </a>
+                                    </li>
+                                @endif
+
+
                                 @if (in_array(Auth::user()->role, [1, 2]))
                                     <li class="menu-item">
                                         <a href="javascript:void(0)" class="menu-link menu-toggle">
@@ -425,8 +439,7 @@
                                             </li>
 
                                             <li class="menu-item">
-                                                <a href="{{ route('user_list', ['vendor']) }}"
-                                                    class="menu-link">
+                                                <a href="{{ route('user_list', ['vendor']) }}" class="menu-link">
                                                     <i class="menu-icon icon-base ti tabler-user-shield"></i>
                                                     <div data-i18n="Vendor">Vendor</div>
                                                 </a>
@@ -512,14 +525,14 @@
                                             <div data-i18n="Document">Document</div>
                                         </a>
                                         <ul class="menu-sub">
-                                        @if (in_array(Auth::user()->role, [1, 2]))
-                                            <li class="menu-item">
-                                                <a href="{{ route('document_type_list') }}" class="menu-link">
-                                                    <i class="menu-icon icon-base ti tabler-file-info"></i>
-                                                    <div data-i18n="Type">Type</div>
-                                                </a>
-                                            </li>
-                                        @endif
+                                            @if (in_array(Auth::user()->role, [1, 2]))
+                                                <li class="menu-item">
+                                                    <a href="{{ route('document_type_list') }}" class="menu-link">
+                                                        <i class="menu-icon icon-base ti tabler-file-info"></i>
+                                                        <div data-i18n="Type">Type</div>
+                                                    </a>
+                                                </li>
+                                            @endif
                                             <li class="menu-item">
                                                 <a href="{{ route('user_document_list') }}" class="menu-link">
                                                     <i class="menu-icon icon-base ti tabler-file"></i>
@@ -571,7 +584,6 @@
 
 
                                 @if (in_array(Auth::user()->role, [4]))
-
                                     {{-- <li class="menu-item">
                                         <a href="{{ route('user_packages_list') }}" class="menu-link">
                                             <i class="menu-icon icon-base ti tabler-a-b-2"></i>
