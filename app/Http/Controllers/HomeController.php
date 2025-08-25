@@ -37,7 +37,7 @@ class HomeController extends Controller
                                             $q->where('status', 'schedule')->where('publish_datetime', '<=', now());
                                         });
                                     })->latest()->limit(6)->get();
-        return view('home',compact('blogs'));
+        return view('front.home',compact('blogs'));
     }
 
 
